@@ -9,34 +9,34 @@
 ## 3.1 Workflow with Docker / Docker in Practice
 ![alt text](https://drive.google.com/uc?export=view&id=1qDYQE6q2E4ArdKWaUq--0AFBSvpShEw2 "Using Docker In Practice")
 1. Stage 1 - Development
-    1. Developing a *JavaScript Application* on your local machine/environment.
-    2. This *JavaScript Application* using *MongoDB* database. Instead of installing it on your local machine/environment, you can download the *MongoDB* docker image from the Docker Hub and run it on your local machine/environment.
+    1. Developing a *JavaScript Application* on a local machine/environment.
+    2. This *JavaScript Application* using *MongoDB* database. Instead of installing it on the local machine/environment, download the *MongoDB* docker image from the Docker Hub and run it on the local machine/environment.
     3. Connect the *JavaScript Application* with the *MongoDB Container* for development.
-    4. For actual Docker example for developer, please refer [here](https://github.com/maomaokong/developing-with-docker-example).
+    4. For actual Docker example for a developer, please refer [here](https://github.com/maomaokong/developing-with-docker-example).
 2. Stage 2 - **Continuous Integration (CI)**
-    1. First version of the *JavaScript Application* was developed on local machine/environment.
-    2. For testing or deploy it on the *Development Environment* where testers in project team is able to test it.
+    1. the First version of the *JavaScript Application* was developed on the local machine/environment.
+    2. For testing or deploy it on the *Development Environment* where testers in the project team can test it.
         1. Developer will commit the *JavaScript Application* in *source code version control and repository system (Git or Bitbucket)*.
-        2. Backend will trigger a **Continuous Integration (CI)**, example like *Jenkins* or others.
-        3. Automated Build example like *Jenkins* will compile and create an *artifact/application program file*.
-        4. Create a *Docker Image* from artifact/application program file.
+        2. Backend will trigger a **Continuous Integration (CI)**, like *Jenkins* or others.
+        3. Automated Build example like *Jenkins* will compile and create an * artefact/application program file*.
+        4. Create a *Docker Image* from the artefact/application program file.
         5. The *JavaScript Application Docker Image* is ready.
-    3. The *JavaScript Application Docker Image* will pushed to a private *Docker Repository*.
+    3. The *JavaScript Application Docker Image* will be pushed to a private *Docker Repository*.
 3. Stage 3 - **Continous Delivery (CD)**
-    1. The backend agent will pull *JavaScript Application Docker Image* from private *Docker Repository* and *MongoDB Docker Image* from public *Docker Hub* and deploy 2 containers using scripts on Development Server for testing.
+    1. The backend agent will pull *JavaScript Application Docker Image* from private *Docker Repository* and *MongoDB Docker Image* from public *Docker Hub* and deploy two containers using scripts on Development Server for testing.
 
 
 ### 3.1.1 How to package a Docker Container for Developed Application?
 1. Dockerfile is a **blueprint** for building the Docker image. The file must save exactly naming and starting with Uppercase D and no extension, or else Docker Build will fail. Template for Dockerfile:
     ```Dockerfile
-    FROM {image, always start by base it on the another image}
+    FROM {image, always start with a base version from another image}
     ENV {container environment variables, optionally define environmental variables}
     RUN {execute any Linux command}
     WORKDIR {set container working directory}
-    COPY {from source to destination, this command will executes on the host!}
+    COPY {from source to destination, this command will execute on the host!}
     CMD {execute an entry point Linux command}
     ```
-2. Dockerfile for packaging the Developed JavaScript with MongoDB, this Dockerfile is build according to the development folder structure below:
+2. Dockerfile for packaging the Developed JavaScript with MongoDB, this Dockerfile is built according to the development folder structure below:
     ```
     .\
     |-src\
@@ -64,18 +64,18 @@
     COPY ./src/ .
     CMD ["node", "server.js"]
     ```
-3. From Dockerfile above, the following steps will apply to the machine/environment after run it with Docker command:
+3. From Dockerfile above, the following steps will apply to the machine/environment after running it with Docker command:
     1. Install Node image from DockerHub.
     2. Set MONGO_DB_USERNAME Container Environment Variable.
     3. Set MONGO_DB_PASSWORD Container Environment Variable.
     4. Create /home/app folder in the Container.
-    5. Copy all files from current folder to Container folder /home/app.
-    6. Start the JavaScript application with Linux command `$ node server.js`
-4. What is different between *RUN* and *CMD* command? The Dockerfile can have multiple *RUN* command but only 1 *CMD* command. *CMD* is serve as execute an entry point for Docker Container.
+    5. Copy all files from the current folder to the Container folder /home/app.
+    6. Start the JavaScript application with Linux command `$ node server.js`.
+4. What is different between *RUN* and *CMD* command? The Dockerfile can have multiple *RUN* command but only 1 *CMD* command. *CMD* is serve as executing an entry point for Docker Container.
 5. Start building Docker image with Dockerfile:
-    * Docker Build syntax needs 2 parameters, tag the image with *application name* and the location of the Dockerfile.
+    * Docker Build syntax needs two parameters, tag the image with *application name* and the location of the Dockerfile.
     ```bash
-    $ docker build --tag my-app:1.0 --file Dockerfile . # Build the image with application name and version from local directory with Dockerfile in root folder.
+    $ docker build --tag my-app:1.0 --file Dockerfile . # Build the image with application name and version from the local directory with Dockerfile in the root folder.
     $
     $ docker build -t my-app:1.0 -f Dockerfile .
     $
@@ -93,17 +93,17 @@
     ```
 7. When Dockerfile was amended, *MUST* rebuild the Docker Image.
     ```bash
-    $ docker build -t my-app:1.1 . # Building new image with newest version number.
+    $ docker build -t my-app:1.1 . # Building a new image with the newest version number.
     $
     $ docker image ls # Checking the Docker image list
     $
     $ docker run my-app:1.0 # test with Docker image again
     $
     $ # If want to delete the oldest image, refer below:
-    $ docker image rm {123456789} # remove the image before rebuild, 123456789 is the Image ID.
+    $ docker image rm {123456789} # remove the image before the rebuild, 123456789 is the Image ID.
     $
-    $ # if not able to delete the image, need to manually delete the existing container.
-    $ docker ps -a # looking for container that running the image.
+    $ # if not able to delete the image, need to delete the existing container manually.
+    $ docker ps -a # looking for a container that running the image.
     $
     $ docker rm 123456789 # remove the container, 123456789 is the Container ID.
     $
@@ -113,9 +113,9 @@
 
 
 ### 3.2.2 Create a Private Docker Registry with AWS Elastic Container Registry(ECR)
-1. In this example, a Private Docker Registry will be create in [AWS ECR](https://aws.amazon.com/ecr/). Other Private Docker Registry option also available like [DigitalOcean](https://www.digitalocean.com/products/container-registry/) and [Nexus](https://www.sonatype.com/nexus/repository-oss).
-2. AWS ECR will create repository per image. Same image will be save different tags or version under the same repository.
-3. Refer this AWS article [Getting started with Amazon ECR using the AWS CLI](https://docs.aws.amazon.com/AmazonECR/latest/userguide/getting-started-cli.html)
+1. In this example, a Private Docker Registry will be created in [AWS ECR](https://aws.amazon.com/ecr/). Other Private Docker Registry option also available like [DigitalOcean](https://www.digitalocean.com/products/container-registry/) and [Nexus](https://www.sonatype.com/nexus/repository-oss).
+2. AWS ECR will create a repository per image. The same image will save different tags or version under the same repository.
+3. Refer to this AWS article [Getting started with Amazon ECR using the AWS CLI](https://docs.aws.amazon.com/AmazonECR/latest/userguide/getting-started-cli.html)
 4. Using Docker Container to host the AWS CLI Terminal, refer this [AWS article](https://docs.aws.amazon.com/cli/latest/userguide/install-cliv2-docker.html).
     ```bash
     $ docker run \
@@ -148,7 +148,7 @@
     ## or a shorter format
     $ docker run -it --rm --volume ~/.aws:/root/.aws amazon/aws-cli:latest configure
     ```
-7. After entered the necessary credential and configuration setting, the files will created under local machine hidden folder (~/.aws/). 
+7. After entering the necessary credential and configuration setting, the files will be created under local machine hidden folder (~/.aws/). 
 8. Retrieve a AWS authentication token and authenticate Docker client to AWS ECR registry.
     ```bash
     $ docker run \
@@ -269,7 +269,7 @@
         mongodb-data:
             driver: local            
     ```
-    * **Docker Compose** will takes care of creating a common Network for container under the same yaml file by default.
+    * **Docker Compose** will take care of creating a shared Network for the container under the same YAML file by default.
 4. Authenticate Docker client to the AWS ECR public registry. Authentication tokens are valid for 12 hours. Refer to this [AWS article](https://docs.aws.amazon.com/AmazonECR/latest/public/public-registries.html#public-registry-auth).
     ```bash
     $ docker run \
@@ -293,7 +293,7 @@
     $ docker-compose -p my-app -f mongodb.yaml up
     $
     ```
-5. Execute **Docker Compose Down** as follow to stop the containers:
+6. Execute **Docker Compose Down** as follow to stop the containers:
     ```bash
     $ docker-compose \
     > --project-name my-app \ # Specify an alternate project name
